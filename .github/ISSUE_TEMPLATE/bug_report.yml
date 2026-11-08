@@ -1,0 +1,33 @@
+name: Bug report / Fehler melden
+description: Something does not work as expected / Etwas funktioniert nicht wie erwartet
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please do **not** attach private photos – a description or a screenshot without personal content is enough.
+        Danke für die Meldung! Bitte **keine** privaten Fotos anhängen – eine Beschreibung oder ein Screenshot ohne persönliche Inhalte genügt.
+  - type: input
+    id: version
+    attributes:
+      label: Rollstamp version
+      placeholder: "v1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 24H2"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened? / Was ist passiert?
+      description: Steps to reproduce, expected and actual result / Schritte, erwartetes und tatsächliches Ergebnis
+    validations:
+      required: true
+  - type: textarea
+    id: messages
+    attributes:
+      label: Error messages / Fehlermeldungen
+      render: text

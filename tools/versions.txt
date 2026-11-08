@@ -1,0 +1,5 @@
+# Pinned versions of the bundled tools.
+# Used by tools/build-portable.ps1 and the release workflow.
+# The weekly workflow "Bundled tool updates" opens an issue as soon as newer versions exist.
+EXIFTOOL_VERSION=13.61
+IMAGEMAGICK_VERSION=7.1.2-32

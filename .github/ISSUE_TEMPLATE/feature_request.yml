@@ -1,0 +1,11 @@
+name: Feature request / Idee
+description: Suggest an improvement / Verbesserung vorschlagen
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help you? / Was würde dir helfen?
+      description: Describe your workflow and what is missing / Beschreibe deinen Ablauf und was fehlt
+    validations:
+      required: true

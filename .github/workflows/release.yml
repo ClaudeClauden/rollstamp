@@ -1,0 +1,51 @@
+name: Release
+
+# Push a tag like "v1.0.0" → portable ZIP is built and attached to a GitHub release.
+# Manual start (workflow_dispatch) → ZIP is only uploaded as a workflow artifact.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  portable:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-about
+        run: cargo install cargo-about --locked
+      - name: Tests
+        run: cargo test --locked
+      - name: Build portable package
+        shell: pwsh
+        run: ./tools/build-portable.ps1 -Locked -NoRun -OutDir dist/Rollstamp
+      - name: Zip and checksum
+        shell: pwsh
+        run: |
+          $name = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { 'dev' }
+          $zip = "Rollstamp-$name-windows-x64.zip"
+          Compress-Archive -Path dist/Rollstamp -DestinationPath $zip
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          "$hash  $zip" | Out-File "$zip.sha256" -Encoding ascii
+          "ZIP=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            ${{ env.ZIP }}
+            ${{ env.ZIP }}.sha256
+      - name: Artifact
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollstamp-portable
+          path: |
+            ${{ env.ZIP }}
+            ${{ env.ZIP }}.sha256

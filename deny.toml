@@ -1,0 +1,48 @@
+# cargo-deny: checks dependencies for known vulnerabilities (RustSec), licenses and sources.
+# Runs in CI on every push/PR and weekly. Local: `cargo install cargo-deny --locked` and `cargo deny check`.
+
+[graph]
+targets = [{ triple = "x86_64-pc-windows-msvc" }]
+
+[advisories]
+version = 2
+# Security vulnerabilities always fail the check (cannot be configured away).
+# "Unmaintained" notices only fail for our direct dependencies – indirect ones (e.g. via egui/wgpu)
+# are outside our control and are fixed by updating the direct dependency.
+unmaintained = "workspace"
+unsound = "workspace"
+yanked = "warn"
+# Only add entries here with a justification and an issue link.
+ignore = []
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+allow = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "0BSD",
+    "BSL-1.0",
+    "CC0-1.0",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "CDLA-Permissive-2.0",
+    "OFL-1.1",
+]
+# egui's default fonts ship the Ubuntu font under its own licence.
+exceptions = [{ allow = ["LicenseRef-UFL-1.0"], crate = "epaint_default_fonts" }]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

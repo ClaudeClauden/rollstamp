@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Rust dependencies – minor/patch updates grouped into one PR per week.
+  # egui/eframe get their own PRs because new versions may need code changes.
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      rust-dependencies:
+        patterns: ["*"]
+        exclude-patterns: ["eframe", "egui*", "epaint*", "emath"]
+        update-types: ["minor", "patch"]
+
+  # GitHub Actions used in the workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

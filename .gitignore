@@ -1,0 +1,7 @@
+/target
+/dist
+*.tmp.jpg
+# local data of the portable mode – never commit
+rollstamp-settings.json
+/cache
+portable.txt

@@ -1,0 +1,49 @@
+name: Bundled tool updates
+
+# Weekly: compares the ExifTool/ImageMagick versions pinned in tools/versions.txt with the
+# latest releases and opens an issue if an update is available (ImageMagick releases often
+# contain security fixes).
+on:
+  schedule:
+    - cron: "41 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare pinned and latest versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pinned_et=$(grep -E '^EXIFTOOL_VERSION=' tools/versions.txt | cut -d= -f2 | tr -d '\r ')
+          pinned_im=$(grep -E '^IMAGEMAGICK_VERSION=' tools/versions.txt | cut -d= -f2 | tr -d '\r ')
+          latest_et=$(curl -fsSL https://exiftool.org/ver.txt | tr -d '\r\n ' || true)
+          latest_im=$(gh api repos/ImageMagick/ImageMagick/releases/latest --jq .tag_name || true)
+          echo "ExifTool:    pinned $pinned_et, latest ${latest_et:-?}"
+          echo "ImageMagick: pinned $pinned_im, latest ${latest_im:-?}"
+
+          open_issue () {
+            local title="$1" body="$2"
+            existing=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[].number')
+            if [ -z "$existing" ]; then
+              gh issue create --title "$title" --body "$body"
+            else
+              echo "Issue already open: #$existing"
+            fi
+          }
+
+          if [ -n "$latest_et" ] && [ "$latest_et" != "$pinned_et" ]; then
+            open_issue "Update ExifTool to $latest_et" \
+              "tools/versions.txt pins ExifTool $pinned_et, the latest version is $latest_et. Update EXIFTOOL_VERSION, build with tools/build-portable.ps1, test and publish a new release. History: https://exiftool.org/history.html"
+          fi
+          if [ -n "$latest_im" ] && [ "$latest_im" != "$pinned_im" ]; then
+            open_issue "Update ImageMagick to $latest_im" \
+              "tools/versions.txt pins ImageMagick $pinned_im, the latest version is $latest_im. Update IMAGEMAGICK_VERSION, build, test and publish a new release. Advisories: https://github.com/ImageMagick/ImageMagick/security/advisories"
+          fi
