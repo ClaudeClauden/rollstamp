@@ -35,8 +35,10 @@ allow = [
     "Unicode-DFS-2016",
     "CDLA-Permissive-2.0",
     "OFL-1.1",
+    # Ubuntu font in egui's default fonts (SPDX id used by newer egui versions)
+    "Ubuntu-font-1.0",
 ]
-# egui's default fonts ship the Ubuntu font under its own licence.
+# Older egui versions declare the Ubuntu font licence as LicenseRef-UFL-1.0.
 exceptions = [{ allow = ["LicenseRef-UFL-1.0"], crate = "epaint_default_fonts" }]
 
 [bans]
